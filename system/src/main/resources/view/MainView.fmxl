@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" 
+      fx:controller="com.inventory.system.controller.MainController" spacing="10" alignment="CENTER">
+    
+    <Label text="Inventory Management Dashboard" style="-fx-font-size: 20px;"/>
+    
+    <TableView fx:id="productTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colName" text="Product Name" />
+            <TableColumn fx:id="colStock" text="Stock" />
+            <TableColumn fx:id="colPrice" text="Selling Price" />
+        </columns>
+    </TableView>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Add Product" onAction="#handleAddProduct"/>
+        <Button text="Record Sale" onAction="#handleRecordSale"/>
+    </HBox>
+</VBox>
