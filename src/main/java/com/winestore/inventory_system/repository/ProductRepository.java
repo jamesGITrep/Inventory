@@ -9,4 +9,7 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Integer> {
     // Only fetch products that aren't marked as typo duplicates [cite: 161]
     List<Product> findByIsActiveTrue();
+
+    List<Product> findByProductNameContainingIgnoreCaseAndIsActiveTrue(String name);
+
 }

@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "Products")
+// We add the Index here. 'idx_product_name' makes searching the 'product_name' column instant.
+@Table(name = "Products", indexes = {
+    @Index(name = "idx_product_name", columnList = "product_name")
+})
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

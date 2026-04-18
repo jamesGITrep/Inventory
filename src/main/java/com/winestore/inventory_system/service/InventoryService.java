@@ -1,15 +1,20 @@
 package com.winestore.inventory_system.service;
 
+import com.winestore.inventory_system.model.DailyReport;
 import com.winestore.inventory_system.model.InventorySnapshot;
 import com.winestore.inventory_system.model.Product;
+import com.winestore.inventory_system.model.PurchaseRecord;
 import com.winestore.inventory_system.model.SaleRecord;
 import com.winestore.inventory_system.model.SnapshotRepository;
 import com.winestore.inventory_system.repository.ProductRepository;
 import com.winestore.inventory_system.repository.ProfitRepository;
+import com.winestore.inventory_system.repository.PurchaseRepository;
 import com.winestore.inventory_system.repository.SaleRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +34,9 @@ public class InventoryService {
 
     @Autowired // For fetching the last purchase price from the SQL View
     private ProfitRepository profitRepository;
+
+    @Autowired
+    private PurchaseRepository purchaseRepository; // For recording purchases (stock inward)
 
     @Transactional
     public void recordSale(SaleRecord sale) {
@@ -117,4 +125,87 @@ public class InventoryService {
         .map(view -> currentSellingPrice.subtract(view.getLastPricePaid()))
         .orElse(BigDecimal.ZERO);
 }
+
+        public List<Product> getAllProducts() {
+           return productRepository.findAll();
+        }
+
+        // Inside InventoryService.java
+    public List<Product> searchProducts(String query) {
+    if (query == null || query.trim().isEmpty()) {
+        return productRepository.findAll(); 
+    }
+        // This calls the "Engine"  built in the Repository
+        return productRepository.findByProductNameContainingIgnoreCaseAndIsActiveTrue(query.trim());
+    }
+
+    public List<DailyReport> generateDailyReport() {
+    List<DailyReport> reports = new ArrayList<>();
+    List<Product> products = productRepository.findAll();
+
+    for (Product p : products) {
+        // 1. Get all sales for this product TODAY
+        // Pass the ID instead of the object
+        List<SaleRecord> sales = saleRepository.findByProductIdAndSaleDate(p.getProductId(), LocalDate.now());
+        
+        if (!sales.isEmpty()) {
+            int totalQty = sales.stream().mapToInt(SaleRecord::getQuantitySold).sum();
+            BigDecimal totalRev = sales.stream()
+                .map(s -> s.getUnitPrice().multiply(BigDecimal.valueOf(s.getQuantitySold())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            // 2. Calculate Profit (Revenue - Last Purchase Price)
+            BigDecimal margin = calculateProfitMargin(p.getProductId(), p.getSellingPrice());
+            BigDecimal totalProfit = margin.multiply(BigDecimal.valueOf(totalQty));
+
+            reports.add(new DailyReport(p.getProductName(), totalQty, totalRev, totalProfit));
+        }
+    }
+    return reports;
+}
+
+    public void captureAllSnapshots() {
+    List<Product> products = productRepository.findAll();
+    for (Product p : products) {
+        captureDailySnapshot(p.getProductId());
+    }
+}
+
+
+                @Transactional // This ensures if one sale fails, the whole "Batch" is rolled back
+        public void processBatchSale(List<SaleRecord> batchSales) {
+            for (SaleRecord sale : batchSales) {
+                // Reuse your solid logic from yesterday
+                recordSaleAndUpdateStock(
+                    sale.getProductId(), 
+                    sale.getQuantitySold(), 
+                    sale.getUnitPrice()
+                );
+            }
+            System.out.println(">>> BATCH SALE: Successfully processed " + batchSales.size() + " items.");
+        }
+            public void recordPurchase(Integer productId, Integer qty, BigDecimal buyPrice) {
+    Product p = productRepository.findById(productId)
+        .orElseThrow(() -> new RuntimeException("Product not found"));
+
+    // 1. Increase the stock
+    p.setCurrentStock(p.getCurrentStock() + qty);
+    productRepository.save(p); 
+
+    // 2. Record the purchase for Profit Analysis
+    PurchaseRecord record = new PurchaseRecord();
+    record.setProductId(productId);
+    record.setQuantityBought(qty);
+    record.setPurchasePrice(buyPrice);
+    record.setPurchaseDate(LocalDate.now());
+    // purchaseRepository.save(record); // Assuming you created PurchaseRepository
+
+   purchaseRepository.save(record); // This will allow us to track the cost price for profit margin calculations
+    System.out.println(">>> STOCK INWARD: Added " + qty + " units to " + p.getProductName());
+
+}
+
+
+    
+
 }

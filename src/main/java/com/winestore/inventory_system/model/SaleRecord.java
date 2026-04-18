@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+
+
 @Entity
 @Table(name = "Sales_Records")
 public class SaleRecord {
@@ -31,6 +33,10 @@ public class SaleRecord {
     public void setSaleDate(LocalDate saleDate) {
         this.saleDate = saleDate;
     }
+
+    @Transient // This tells the database NOT to save this column, it's only for the UI
+    private String productName;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer saleId;
@@ -40,11 +46,21 @@ public class SaleRecord {
     private BigDecimal salePriceAtTime;
     private LocalDate saleDate;
     public Integer getProductId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getProductId'");
-    }
-    public int getQuantitySold() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getQuantitySold'");
-    }
+    return this.productId;
+}
+
+        public Integer getQuantitySold() {
+            return this.quantitySold;
+        }
+
+        // Ensure the report logic can find the price
+        public BigDecimal getUnitPrice() {
+            return this.salePriceAtTime;
+        }
+
+        public String getProductName() { return productName; }
+        public void setProductName(String productName) { this.productName = productName; }
+        // This method is called from the InventoryService when a sale is made
+        // It creates a new SaleRecord and saves it to the database with the current price and date
+
 }
