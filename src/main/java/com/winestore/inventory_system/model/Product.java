@@ -1,10 +1,17 @@
 package com.winestore.inventory_system.model;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+
 @Entity
-// We add the Index here. 'idx_product_name' makes searching the 'product_name' column instant.
 @Table(name = "Products", indexes = {
     @Index(name = "idx_product_name", columnList = "product_name")
 })
@@ -16,25 +23,36 @@ public class Product {
     @Column(nullable = false)
     private String productName;
 
-    private Integer manufacturerId; // Link to Manufacturer [cite: 27]
+    private Integer manufacturerId; 
     private Integer categoryId;
-    private Integer sizeMl; // Bottle/Can size [cite: 30]
+    private Integer sizeMl; 
     
     private Integer currentStock;
-    private Integer lowStockThreshold; // For alerts [cite: 33, 142]
+    private Integer lowStockThreshold; 
     
     private BigDecimal purchasePrice;
     private BigDecimal sellingPrice;
     
     @Column(name = "is_active")
-    private Boolean isActive = true; // Guard for duplicates [cite: 159]
+    private Boolean isActive = true;
 
-    // Standard Getters and Setters are required for Spring Data JPA
-   public Integer getProductId() { return productId; }
+    // --- James: Added fields for Excise Friendly Dashboard compatibility ---
+    @Transient // Transient means these aren't in the DB yet, but JavaFX can read them
+    private Integer openingStock = 0;
+    @Transient
+    private Integer totalPurchases = 0;
+    @Transient
+    private Integer totalSales = 0;
+
+    // Standard Getters and Setters
+    public Integer getProductId() { return productId; }
     public void setProductId(Integer productId) { this.productId = productId; }
 
     public String getProductName() { return productName; }
     public void setProductName(String productName) { this.productName = productName; }
+
+    public Integer getCategoryId() { return categoryId; }
+    public void setCategoryId(Integer categoryId) { this.categoryId = categoryId; }
 
     public Integer getCurrentStock() { return currentStock; }
     public void setCurrentStock(Integer currentStock) { this.currentStock = currentStock; }
@@ -42,7 +60,6 @@ public class Product {
     public Integer getLowStockThreshold() { return lowStockThreshold; }
     public void setLowStockThreshold(Integer lowStockThreshold) { this.lowStockThreshold = lowStockThreshold; }
 
-    // Repeat this simple pattern for sizeMl, prices, and isActive...
     public Integer getSizeMl() { return sizeMl; }
     public void setSizeMl(Integer sizeMl) { this.sizeMl = sizeMl; }
 
@@ -55,5 +72,19 @@ public class Product {
     public Boolean getIsActive() { return isActive; }
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }
 
+    // --- New Getters for Dashboard Columns ---
+    public Integer getOpeningStock() { return openingStock; }
+    public void setOpeningStock(Integer openingStock) { this.openingStock = openingStock; }
 
+    public Integer getTotalPurchases() { return totalPurchases; }
+    public void setTotalPurchases(Integer totalPurchases) { this.totalPurchases = totalPurchases; }
+
+    public Integer getTotalSales() { return totalSales; }
+    public void setTotalSales(Integer totalSales) { this.totalSales = totalSales; }
+
+    // Logic for the "Stock Alert" column
+    public String getStockStatus() {
+        if (currentStock == null || lowStockThreshold == null) return "OK";
+        return (currentStock <= lowStockThreshold) ? "LOW STOCK" : "OK";
+    }
 }

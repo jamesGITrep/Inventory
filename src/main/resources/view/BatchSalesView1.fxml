@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.inventory.system.controller.BatchSalesController">
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+   </padding>
+   <children>
+      <Label style="-fx-font-weight: bold; -fx-font-size: 18px;" text="End-of-Day Batch Sales Entry" />
+      <HBox prefHeight="100.0" prefWidth="200.0" spacing="15.0">
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+         <children>
+            <ComboBox fx:id="comboProductName" prefWidth="150.0" />
+            <TextField fx:id="txtQuantity" promptText="Qty Sold" />
+            <Button mnemonicParsing="false" style="-fx-background-color: #2563eb;; -fx-text-fill: white; -fx-font-weight: bold;" text="Add to Batch" />
+         </children>
+      </HBox>
+      <TableView fx:id="batchSalesTable" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+        <columns>
+          <TableColumn fx:id="colBatchName" prefWidth="75.0" text="Item Name" />
+          <TableColumn fx:id="colBatchQty" prefWidth="75.0" text="Quantity" />
+            <TableColumn fx:id="colBatchPrice" prefWidth="75.0" text="Total Price" />
+        </columns>
+      </TableView>
+      <Button fx:id="btnSave" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: #16a34a;; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10; -fx-font-size: 14px;" text="Commit Batch to Inventory" />
+   </children>
+</VBox>

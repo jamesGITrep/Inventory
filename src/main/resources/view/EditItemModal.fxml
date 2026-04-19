@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefWidth="480.0" spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.winestore.inventory_system.controller.MainController">
+   <children>
+      <VBox spacing="5.0">
+         <children>
+            <Label text="Edit Item" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #0f172a;" />
+            <Label text="Update product information" style="-fx-text-fill: #64748b;" />
+         </children>
+      </VBox>
+
+      <Separator />
+
+      <VBox spacing="8.0" style="-fx-background-color: #f0f7ff; -fx-border-color: #bae6fd; -fx-border-radius: 8; -fx-padding: 15;">
+         <children>
+            <Label fx:id="lblEditItemId" text="Item ID: 1" style="-fx-text-fill: #2563eb; -fx-font-weight: bold;" />
+            <Label fx:id="lblEditCurrentStock" text="Current Stock: 100 units" style="-fx-text-fill: #2563eb; -fx-font-weight: bold;" />
+         </children>
+      </VBox>
+
+      <VBox spacing="12.0">
+         <children>
+            <VBox spacing="5.0">
+               <children>
+                  <Label text="Product Name *" style="-fx-font-weight: bold; -fx-text-fill: #334155;" />
+                  <TextField fx:id="txtProductName" style="-fx-padding: 10; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5;" text="Kingfisher Beer" />
+               </children>
+            </VBox>
+
+            <VBox spacing="5.0">
+               <children>
+                  <Label text="Category *" style="-fx-font-weight: bold; -fx-text-fill: #334155;" />
+                  <ComboBox fx:id="comboCategory" maxWidth="1.7976931348623157E308" promptText="Beer" style="-fx-padding: 5; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5;" />
+               </children>
+            </VBox>
+
+            <VBox spacing="5.0">
+               <children>
+                  <Label text="Opening Stock *" style="-fx-font-weight: bold; -fx-text-fill: #334155;" />
+                  <TextField fx:id="txtQuantity" style="-fx-padding: 10; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5;" text="100" />
+                  <Label text="Note: Changing this won't affect current stock" style="-fx-font-size: 11; -fx-text-fill: #64748b;" />
+               </children>
+            </VBox>
+
+            <HBox spacing="15.0">
+               <children>
+                  <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Purchase Price (₹) *" style="-fx-font-weight: bold; -fx-text-fill: #334155;" />
+                        <TextField fx:id="txtPurchasePrice" style="-fx-padding: 10; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5;" text="80" />
+                     </children>
+                  </VBox>
+                  <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Selling Price (₹) *" style="-fx-font-weight: bold; -fx-text-fill: #334155;" />
+                        <TextField fx:id="txtSellingPrice" style="-fx-padding: 10; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5;" text="110" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+
+            <TextField editable="false" fx:id="txtProfitMarginDisplay" style="-fx-padding: 10; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5; -fx-text-fill: #334155;" text="New Profit Margin: ₹30.00 per unit" />
+         </children>
+      </VBox>
+
+      <Separator />
+
+      <VBox spacing="10.0">
+         <children>
+            <Label text="Transaction History (Read Only)" style="-fx-font-weight: bold; -fx-text-fill: #64748b; -fx-font-size: 12;" />
+            <HBox spacing="100.0">
+               <children>
+                  <Label fx:id="lblHistoryPurchases" text="Purchases: 0" style="-fx-font-weight: bold;" />
+                  <Label fx:id="lblHistorySales" text="Sales: 0" style="-fx-font-weight: bold;" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+
+      <HBox spacing="15.0">
+         <children>
+            <Button fx:id="btnCancel" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5; -fx-padding: 10; -fx-font-weight: bold;" text="Cancel" HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnSave" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleSavePurchase" style="-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-font-weight: bold;" text="Save Changes" HBox.hgrow="ALWAYS" />
+         </children>
+         <VBox.margin>
+            <Insets top="10.0" />
+         </VBox.margin>
+      </HBox>
+   </children>
+   <padding>
+      <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+   </padding>
+</VBox>

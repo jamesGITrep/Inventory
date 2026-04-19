@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="800.0" prefWidth="1200.0" spacing="20.0" style="-fx-background-color: #f8fafc;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.winestore.inventory_system.controller.MainController">
+   <children>
+      <VBox spacing="15.0" style="-fx-background-color: white; -fx-padding: 20;">
+         <children>
+            <Label text="Wine Store Inventory System" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #1e293b;" />
+            <Label text="Master (Excise Friendly)" style="-fx-text-fill: #94a3b8;" />
+            <HBox spacing="30.0" style="-fx-padding: 10 0 0 0;">
+               <children>
+                  <Button style="-fx-background-color: transparent; -fx-text-fill: #64748b;" text="Inventory Management" />
+                  <Button style="-fx-background-color: transparent; -fx-text-fill: #64748b;" text="Sales Reports &amp; Analytics" />
+                  <Button style="-fx-background-color: transparent; -fx-text-fill: #1e293b; -fx-border-color: transparent transparent #2563eb transparent; -fx-border-width: 0 0 2 0;" text="Transaction History" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+
+      <VBox spacing="20.0">
+         <padding>
+            <Insets bottom="20.0" left="25.0" right="25.0" top="10.0" />
+         </padding>
+         <children>
+            <VBox spacing="5.0" style="-fx-background-color: #fff1f2; -fx-border-color: #fecdd3; -fx-border-radius: 8; -fx-padding: 15; -fx-background-radius: 8;">
+               <children>
+                  <HBox spacing="10.0">
+                     <children>
+                        <Label text="⚠  Sensitive Operations Area" style="-fx-text-fill: #991b1b; -fx-font-weight: bold;" />
+                     </children>
+                  </HBox>
+                  <Label text="Deleting sale records requires password authentication. This action will restore inventory and remove the transaction permanently. Use with caution." style="-fx-text-fill: #b91c1c; -fx-font-size: 12;" />
+               </children>
+            </VBox>
+
+            <HBox spacing="20.0">
+               <children>
+                  <VBox prefWidth="350.0" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-padding: 20;" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Total Transactions" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
+                        <Label text="0" style="-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #0f172a;" />
+                        <Label text="sale records" style="-fx-text-fill: #94a3b8; -fx-font-size: 11;" />
+                     </children>
+                  </VBox>
+                  <VBox prefWidth="350.0" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-padding: 20;" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Total Sales Amount" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
+                        <Label text="₹0.00" style="-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #0f172a;" />
+                        <Label text="0 units sold" style="-fx-text-fill: #94a3b8; -fx-font-size: 11;" />
+                     </children>
+                  </VBox>
+                  <VBox prefWidth="350.0" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-padding: 20;" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Total Profit" style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
+                        <Label fx:id="lblTotalProfit" text="₹0.00" style="-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #16a34a;" />
+                        <Label text="from filtered transactions" style="-fx-text-fill: #94a3b8; -fx-font-size: 11;" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+
+            <VBox spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-padding: 20;">
+               <children>
+                  <Label text="Filter Transactions" style="-fx-font-weight: bold; -fx-text-fill: #1e293b; -fx-font-size: 16;" />
+                  <HBox spacing="20.0">
+                     <children>
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label text="Search by Product" style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #475569;" />
+                              <TextField fx:id="searchField" promptText="Search product name..." style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5; -fx-padding: 10;" />
+                           </children>
+                        </VBox>
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label text="Category" style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #475569;" />
+                              <ComboBox fx:id="comboCategory" maxWidth="1.7976931348623157E308" promptText="All Categories" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5; -fx-padding: 7;" />
+                           </children>
+                        </VBox>
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label text="Date" style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #475569;" />
+                              <DatePicker fx:id="datePicker" maxWidth="1.7976931348623157E308" promptText="mm/dd/yyyy" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5;" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+
+            <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-padding: 20;" VBox.vgrow="ALWAYS">
+               <children>
+                  <Label text="All Sale Transactions" style="-fx-font-weight: bold; -fx-text-fill: #1e293b; -fx-font-size: 16;" />
+                  <Label text="Complete history of all sale records. Click the delete button to undo a transaction." style="-fx-text-fill: #64748b; -fx-font-size: 12;" />
+                  <Separator>
+                     <VBox.margin>
+                        <Insets bottom="50.0" top="15.0" />
+                     </VBox.margin>
+                  </Separator>
+                  <VBox alignment="CENTER" spacing="10.0">
+                     <children>
+                        <Label text="No transactions found" style="-fx-text-fill: #475569; -fx-font-weight: bold;" />
+                        <Label text="Try adjusting your filters" style="-fx-text-fill: #94a3b8; -fx-font-size: 12;" />
+                     </children>
+                  </VBox>
+                  </children>
+            </VBox>
+         </children>
+      </VBox>
+   </children>
+</VBox>

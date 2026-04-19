@@ -1,5 +1,14 @@
 package com.winestore.inventory_system.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.winestore.inventory_system.model.DailyReport;
 import com.winestore.inventory_system.model.InventorySnapshot;
 import com.winestore.inventory_system.model.Product;
@@ -10,15 +19,6 @@ import com.winestore.inventory_system.repository.ProductRepository;
 import com.winestore.inventory_system.repository.ProfitRepository;
 import com.winestore.inventory_system.repository.PurchaseRepository;
 import com.winestore.inventory_system.repository.SaleRepository;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class InventoryService {
@@ -44,29 +44,29 @@ public class InventoryService {
         Product product = productRepository.findById(sale.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        // 2. Logic: Deduct sold quantity from available stock [cite: 211]
+        // 2. Logic: Deduct sold quantity from available stock
         int updatedStock = product.getCurrentStock() - sale.getQuantitySold();
         
         if (updatedStock < 0) {
             throw new RuntimeException("Insufficient stock!");
         }
 
-        // 3. Update the Product's stock level [cite: 205, 209]
+        // 3. Update the Product's stock level
         product.setCurrentStock(updatedStock);
         productRepository.save(product);
 
-        // 4. Save the Sale Record for reporting [cite: 260]
+        // 4. Save the Sale Record for reporting
         saleRepository.save(sale);
         
         System.out.println("Stock updated for: " + product.getProductId());
     }
 
-        // Logic to prevent "Dirty Data" duplicates [cite: 163, 165, 168]
+        // Logic to prevent "Dirty Data" duplicates
         public boolean isDuplicate(String name, Integer size) {
-            String cleanName = name.replaceAll("\\s+", "").toLowerCase(); // [cite: 168, 170]
+            String cleanName = name.replaceAll("\\s+", "").toLowerCase(); //
         return productRepository.findByIsActiveTrue().stream()
          .anyMatch(p -> p.getProductName().replaceAll("\\s+", "").equalsIgnoreCase(cleanName) 
-                  && p.getSizeMl().equals(size)); // [cite: 21, 38, 114]
+                  && p.getSizeMl().equals(size)); //
         }
 
         @Transactional
@@ -205,7 +205,12 @@ public class InventoryService {
 
 }
 
-
-    
+    /**
+     * James: Added this method to fix the compilation error in MainController.
+     * This handles saving products for both manual entries and CSV imports.
+     */
+    public void saveProduct(Product product) {
+        productRepository.save(product);
+    }
 
 }
