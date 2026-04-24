@@ -42,26 +42,39 @@ public class ReportService {
         salesByProduct.forEach((productId, sales) -> {
             Product p = productMap.get(productId);
             if (p != null) {
-                int volume = sales.stream().mapToInt(SaleRecord::getQuantitySold).sum();
-                double revenue = sales.stream()
-                        .mapToDouble(s -> s.getSalePriceAtTime().doubleValue() * s.getQuantitySold())
+                int volume = sales.stream()
+                        .mapToInt(s -> s.getQuantitySold() != null ? s.getQuantitySold() : 0)
                         .sum();
                 
-                double cost = 0.0;
+                BigDecimal revenue = sales.stream()
+                        .map(s -> {
+                            BigDecimal price = s.getSalePriceAtTime() != null ? s.getSalePriceAtTime() : BigDecimal.ZERO;
+                            BigDecimal qty = BigDecimal.valueOf(s.getQuantitySold() != null ? s.getQuantitySold() : 0);
+                            return price.multiply(qty);
+                        })
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                
+                BigDecimal cost = BigDecimal.ZERO;
                 if (p.getPurchasePrice() != null) {
+                    BigDecimal pPrice = p.getPurchasePrice();
                     cost = sales.stream()
-                            .mapToDouble(s -> p.getPurchasePrice().doubleValue() * s.getQuantitySold())
-                            .sum();
+                            .map(s -> {
+                                BigDecimal qty = BigDecimal.valueOf(s.getQuantitySold() != null ? s.getQuantitySold() : 0);
+                                return pPrice.multiply(qty);
+                            })
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
                 }
-                double profit = revenue - cost;
+                
+                BigDecimal profit = revenue.subtract(cost);
 
                 analysisData.add(new ProductAnalysisRow(
                         productId,
                         p.getProductName(),
                         p.getCategory(),
+                        p.getSizeMl(),
                         volume,
-                        revenue,
-                        profit
+                        revenue.doubleValue(),
+                        profit.doubleValue()
                 ));
             }
         });
@@ -76,7 +89,10 @@ public class ReportService {
         List<ProductAnalysisRow> data = getProductWiseAnalysis();
         return data.stream()
                 .collect(Collectors.groupingBy(
-                        ProductAnalysisRow::getCategory,
+                        row -> {
+                            String category = row.getCategory();
+                            return (category == null || category.isBlank()) ? "Uncategorized" : category;
+                        },
                         Collectors.summingDouble(ProductAnalysisRow::getTotalProfit)
                 ));
     }

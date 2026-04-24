@@ -73,6 +73,7 @@
                   <TableView fx:id="cartTable" VBox.vgrow="ALWAYS">
                      <columns>
                         <TableColumn fx:id="colCartProduct" text="Product Name" prefWidth="200.0" />
+                        <TableColumn fx:id="colCartSize" text="Size (ml)" prefWidth="80.0" />
                         <TableColumn fx:id="colCartQty" text="Qty" prefWidth="80.0" />
                         <TableColumn fx:id="colCartPrice" text="Line Total" prefWidth="120.0" />
                      </columns>

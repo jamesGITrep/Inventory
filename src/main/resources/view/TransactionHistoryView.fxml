@@ -110,6 +110,7 @@
                         <TableColumn fx:id="colHistorySaleId" text="Sale ID" prefWidth="70.0" />
                         <TableColumn fx:id="colHistoryDate" text="Date" prefWidth="110.0" />
                         <TableColumn fx:id="colHistoryProduct" text="Product Name" prefWidth="240.0" />
+                        <TableColumn fx:id="colHistorySize" text="Size (ml)" prefWidth="90.0" />
                         <TableColumn fx:id="colHistoryQty" text="Qty Sold" prefWidth="90.0" />
                         <TableColumn fx:id="colHistoryPrice" text="Unit Price" prefWidth="120.0" />
                         <TableColumn fx:id="colHistoryTotal" text="Total" prefWidth="120.0" />

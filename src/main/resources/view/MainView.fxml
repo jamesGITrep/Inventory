@@ -28,6 +28,10 @@
                      </children>
                   </VBox>
                   <Region HBox.hgrow="ALWAYS" />
+                  <Button fx:id="btnSettings" onAction="#handleOpenSettings"
+                          style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-font-weight: bold; -fx-padding: 8 10; -fx-background-radius: 6; -fx-cursor: hand;"
+                          text="⚙" />
+                  <Region prefWidth="8.0" />
                   <Button onAction="#handleExportCSV"
                           style="-fx-background-color: #64748b; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 6; -fx-cursor: hand;"
                           text="Export CSV" />
@@ -42,7 +46,7 @@
                           style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5 5 0 0; -fx-padding: 8 18; -fx-cursor: hand;" />
                   <Button fx:id="btnNavPurchaseHistory" onAction="#handleOpenPurchaseHistory" text="Purchase History"
                           style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5 5 0 0; -fx-padding: 8 18; -fx-cursor: hand;" />
-                  <Button fx:id="btnNavHistory" onAction="#handleOpenTransactionHistory" text="Transaction History"
+                  <Button fx:id="btnNavHistory" onAction="#handleOpenTransactionHistory" text="Sales History"
                           style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5 5 0 0; -fx-padding: 8 18; -fx-cursor: hand;" />
                </children>
             </HBox>
@@ -66,9 +70,9 @@
                         </HBox>
                         <HBox alignment="CENTER_LEFT" spacing="6.0" style="-fx-padding: 10 0 0 0;">
                            <children>
-                              <Button onAction="#handleDateToday" text="Today"
+                              <Button fx:id="btnDateToday" onAction="#handleDateToday" text="Today"
                                       style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 5 14; -fx-font-weight: bold; -fx-cursor: hand;" />
-                              <Button onAction="#handleDateYesterday" text="Yesterday"
+                              <Button fx:id="btnDateYesterday" onAction="#handleDateYesterday" text="Yesterday"
                                       style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-background-radius: 6; -fx-padding: 5 14; -fx-cursor: hand;" />
                               <Button fx:id="btnDate3" text="10 Mar"
                                       style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-background-radius: 6; -fx-padding: 5 14; -fx-cursor: hand;" />
@@ -117,7 +121,7 @@
                               style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 18 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 3); -fx-cursor: hand;"
                               HBox.hgrow="ALWAYS">
                            <children>
-                              <Label style="-fx-text-fill: #94a3b8; -fx-font-size: 12;" text="Low Stock Alerts" />
+                              <Label fx:id="lblLowStockTitle" style="-fx-text-fill: #94a3b8; -fx-font-size: 12;" text="Low Stock Alerts" />
                               <Label fx:id="lblLowStockCount" style="-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="" />
                            </children>
                         </VBox>
@@ -127,8 +131,8 @@
                               style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 18 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 3);"
                               HBox.hgrow="ALWAYS">
                            <children>
-                              <Label style="-fx-text-fill: #94a3b8; -fx-font-size: 12;" text="Recent Sales Entries" />
-                              <Label fx:id="lblRecentSalesEntries" style="-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="" />
+                              <Label style="-fx-text-fill: #94a3b8; -fx-font-size: 12;" text="Total Profit" />
+                              <Label fx:id="lblRecentSalesEntries" style="-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #16a34a;" text="" />
                            </children>
                         </VBox>
                      </children>
@@ -179,6 +183,7 @@
                            <columns>
                               <TableColumn fx:id="colId" text="ITEM ID" prefWidth="60.0" />
                               <TableColumn fx:id="colName" text="PRODUCT NAME" prefWidth="180.0" />
+                              <TableColumn fx:id="colSize" text="SIZE (ML)" prefWidth="80.0" />
                               <TableColumn fx:id="colCategory" text="CATEGORY" prefWidth="100.0" />
                               <TableColumn fx:id="colOpeningStock" text="OPENING STOCK" prefWidth="110.0" />
                               <TableColumn fx:id="colPurchases" text="PURCHASES" prefWidth="90.0" />

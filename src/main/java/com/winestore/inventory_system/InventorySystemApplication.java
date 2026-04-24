@@ -31,21 +31,21 @@ public class InventorySystemApplication extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            // Load the UI from the resources/view folder
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
+            // Load the Password protection screen first
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/PasswordView.fxml"));
             
             // Allows Spring to inject dependencies into the UI Controller
             loader.setControllerFactory(springContext::getBean);
             
             Parent root = loader.load();
-            primaryStage.setTitle("Wine Store Inventory System - Master (Excise Friendly)");
+            primaryStage.setTitle("Wine Store Inventory System - Security");
             primaryStage.setScene(new Scene(root));
             
-            // Show the main dashboard
+            // Show the login/setup screen
             primaryStage.show();
             
         } catch (Exception e) {
-            System.err.println("CRITICAL UI ERROR: Could not load MainView.fxml");
+            System.err.println("CRITICAL UI ERROR: Could not load PasswordView.fxml");
             System.err.println("REASON: " + e.getMessage());
             e.printStackTrace(); 
         }

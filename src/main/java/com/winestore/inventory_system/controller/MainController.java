@@ -1,16 +1,18 @@
 package com.winestore.inventory_system.controller;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -18,9 +20,12 @@ import org.springframework.stereotype.Component;
 
 import com.winestore.inventory_system.model.CartItem;
 import com.winestore.inventory_system.model.Product;
+import com.winestore.inventory_system.model.PurchaseCartItem;
 import com.winestore.inventory_system.model.SaleRecord;
 import com.winestore.inventory_system.service.InventoryService;
+import com.winestore.inventory_system.service.SecurityVaultService;
 
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -35,9 +40,11 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
@@ -67,6 +74,9 @@ public class MainController {
     private InventoryService inventoryService;
 
     @Autowired
+    private SecurityVaultService securityVaultService;
+
+    @Autowired
     private ConfigurableApplicationContext springContext;
 
     @FXML private StackPane contentArea;
@@ -76,6 +86,7 @@ public class MainController {
     @FXML private Button btnNavAnalytics;
     @FXML private Button btnNavHistory;
     @FXML private Button btnNavPurchaseHistory;
+    @FXML private Button btnSettings;
 
     @FXML private VBox cardTotalProducts;
     @FXML private VBox cardTotalStock;
@@ -85,11 +96,14 @@ public class MainController {
     @FXML private Label lblTotalProducts;
     @FXML private Label lblTotalStock;
     @FXML private Label lblLowStockCount;
+    @FXML private Label lblLowStockTitle;
     @FXML private Label lblRecentSalesEntries;
     @FXML private Label lblCurrentDate;
     @FXML private Label lblRowCount;
     @FXML private Label lblPageInfo;
 
+    @FXML private Button btnDateToday;
+    @FXML private Button btnDateYesterday;
     @FXML private Button btnDate3;
     @FXML private Button btnDate4;
     @FXML private Button btnDate5;
@@ -125,6 +139,7 @@ public class MainController {
     @FXML private TextField txtSaleQuantity;
     @FXML private TableView<CartItem> cartTable;
     @FXML private TableColumn<CartItem, String> colCartProduct;
+    @FXML private TableColumn<CartItem, Integer> colCartSize;
     @FXML private TableColumn<CartItem, Integer> colCartQty;
     @FXML private TableColumn<CartItem, BigDecimal> colCartPrice;
     @FXML private Label lblBillTotal;
@@ -140,6 +155,28 @@ public class MainController {
     @FXML private TextField txtLowStockThreshold;
     @FXML private TextField txtProfitMarginDisplay;
     @FXML private ComboBox<String> comboProductName;
+
+    // --- Batch Purchase Fields ---
+    @FXML private TableView<Product> purchaseItemsTable;
+    @FXML private TableColumn<Product, String> colPurchaseItemName;
+    @FXML private TableColumn<Product, Integer> colPurchaseItemSize;
+    @FXML private TableColumn<Product, Integer> colPurchaseItemStock;
+    @FXML private TableColumn<Product, Integer> colPurchaseItemPurchases;
+    @FXML private TableColumn<Product, BigDecimal> colPurchaseItemPrice;
+    @FXML private TableColumn<Product, BigDecimal> colPurchaseItemSellPrice;
+    
+    @FXML private TableView<PurchaseCartItem> purchaseCartTable;
+    @FXML private TableColumn<PurchaseCartItem, String> colPCartProduct;
+    @FXML private TableColumn<PurchaseCartItem, Integer> colPCartSize;
+    @FXML private TableColumn<PurchaseCartItem, Integer> colPCartQty;
+    @FXML private TableColumn<PurchaseCartItem, BigDecimal> colPCartBuyPrice;
+    @FXML private TableColumn<PurchaseCartItem, BigDecimal> colPCartSellPrice;
+    @FXML private TableColumn<PurchaseCartItem, BigDecimal> colPCartTotal;
+
+    @FXML private TextField txtPCartQty;
+    @FXML private TextField txtPCartBuyPrice;
+    @FXML private TextField txtPCartSellPrice;
+    @FXML private Label lblPurchaseBatchTotal;
     @FXML private ComboBox<String> comboCategory;
     @FXML private ComboBox<String> comboManufacturer;
     @FXML private Label lblCurrentStock;
@@ -152,6 +189,7 @@ public class MainController {
     @FXML private Button btnDailyReport;
     @FXML private Button btnMonthlyReport;
     @FXML private Button btnAnnualReport;
+    @FXML private Button btnProductAnalysis;
     @FXML private DatePicker analyticsDatePicker;
     @FXML private Label lblAnalyticsTotalSalesAmt;
     @FXML private Label lblAnalyticsTxCount;
@@ -160,6 +198,13 @@ public class MainController {
     @FXML private Label lblAnalyticsMargin;
     @FXML private HBox analyticsDataState;
     @FXML private VBox analyticsEmptyState;
+    @FXML private VBox analyticsDateCard;
+    @FXML private VBox analyticsSummarySection;
+    @FXML private StackPane productAnalysisContainer;
+    @FXML private Label lblDatePicker;
+    @FXML private HBox dateSelectorContainer;
+    private ComboBox<Month> comboMonth;
+    private ComboBox<Integer> comboYear;
 
     @FXML private TextField txHistorySearch;
     @FXML private DatePicker dpHistoryDate;
@@ -167,6 +212,7 @@ public class MainController {
     @FXML private TableColumn<SaleRecord, Integer> colHistorySaleId;
     @FXML private TableColumn<SaleRecord, Integer> colHistoryQty;
     @FXML private TableColumn<SaleRecord, String> colHistoryProduct;
+    @FXML private TableColumn<SaleRecord, Integer> colHistorySize;
     @FXML private TableColumn<SaleRecord, LocalDate> colHistoryDate;
     @FXML private TableColumn<SaleRecord, BigDecimal> colHistoryPrice;
     @FXML private TableColumn<SaleRecord, BigDecimal> colHistoryTotal;
@@ -180,6 +226,7 @@ public class MainController {
     private final ObservableList<Product> inventoryPageData = FXCollections.observableArrayList();
     private final ObservableList<Product> posData = FXCollections.observableArrayList();
     private final ObservableList<CartItem> cartData = FXCollections.observableArrayList();
+    private final ObservableList<PurchaseCartItem> purchaseCartData = FXCollections.observableArrayList();
     private final ObservableList<SaleRecord> historyData = FXCollections.observableArrayList();
 
     private Product editingProduct;
@@ -189,7 +236,7 @@ public class MainController {
     private ReportType currentReportType = ReportType.DAILY;
 
     private enum ReportType {
-        DAILY, MONTHLY, ANNUAL
+        DAILY, MONTHLY, ANNUAL, PRODUCT_ANALYSIS
     }
 
     @FXML
@@ -198,6 +245,7 @@ public class MainController {
         setupSalesTable();
         setupCartTable();
         setupHistoryTable();
+        setupPurchaseTables();
         setupDateButtons();
         setupAutoCompletion();
         updateEntryDateLabel();
@@ -216,6 +264,14 @@ public class MainController {
         if (historyTable != null) {
             historyTable.setItems(historyData);
             handleHistoryFilter();
+        }
+
+        if (purchaseItemsTable != null) {
+            purchaseItemsTable.setItems(posData);
+            refreshPosTable();
+        }
+        if (purchaseCartTable != null) {
+            purchaseCartTable.setItems(purchaseCartData);
         }
 
         if (btnNavInventory != null) {
@@ -247,19 +303,43 @@ public class MainController {
             colProfit.setCellValueFactory(new PropertyValueFactory<>("profit"));
         }
         colStatus.setCellValueFactory(new PropertyValueFactory<>("stockStatus"));
+        
+        inventoryTable.setRowFactory(tv -> new TableRow<Product>() {
+            @Override
+            protected void updateItem(Product item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setStyle("");
+                } else if (safeInt(item.getCurrentStock()) <= safeInt(item.getLowStockThreshold())) {
+                    setStyle("-fx-background-color: #fef2f2;"); // Very light red highlight
+                } else {
+                    setStyle("");
+                }
+            }
+        });
+
+        inventoryTable.setPlaceholder(new Label("No information exists for the selected date."));
 
         if (colActions != null) {
             colActions.setCellFactory(param -> new TableCell<>() {
                 private final Button editButton = new Button("Edit");
+                private final Button batchButton = new Button("Batches");
+                private final HBox container = new HBox(8, editButton, batchButton);
+
                 {
                     editButton.setStyle("-fx-background-color: #f1f5f9; -fx-text-fill: #475569; "
                             + "-fx-cursor: hand; -fx-padding: 4 8;");
                     editButton.setOnAction(event -> handleEditProduct(getTableView().getItems().get(getIndex())));
+
+                    batchButton.setStyle("-fx-background-color: #e0f2fe; -fx-text-fill: #0369a1; "
+                            + "-fx-cursor: hand; -fx-padding: 4 8; -fx-font-weight: bold;");
+                    batchButton.setOnAction(event -> openBatchDetailsPopup(getTableView().getItems().get(getIndex())));
                 }
+
                 @Override
                 protected void updateItem(Void item, boolean empty) {
                     super.updateItem(item, empty);
-                    setGraphic(empty ? null : editButton);
+                    setGraphic(empty ? null : container);
                 }
             });
         }
@@ -281,12 +361,64 @@ public class MainController {
         }
     }
 
+    private void setupPurchaseTables() {
+        if (purchaseItemsTable == null) return;
+
+        colPurchaseItemName.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        if (colPurchaseItemSize != null) {
+            colPurchaseItemSize.setCellValueFactory(new PropertyValueFactory<>("sizeMl"));
+        }
+        
+        // Real-time stock calculation (Current + Pending in Batch)
+        colPurchaseItemStock.setCellValueFactory(cellData -> {
+            Product p = cellData.getValue();
+            int current = safeInt(p.getCurrentStock());
+            int pending = purchaseCartData.stream()
+                .filter(item -> item.getProduct().getProductId().equals(p.getProductId()))
+                .mapToInt(PurchaseCartItem::getQuantity)
+                .sum();
+            return new ReadOnlyObjectWrapper<>(current + pending);
+        });
+
+        if (colPurchaseItemPurchases != null) {
+            colPurchaseItemPurchases.setCellValueFactory(cellData -> {
+                Product p = cellData.getValue();
+                int pending = purchaseCartData.stream()
+                    .filter(item -> item.getProduct().getProductId().equals(p.getProductId()))
+                    .mapToInt(PurchaseCartItem::getQuantity)
+                    .sum();
+                return new ReadOnlyObjectWrapper<>(pending);
+            });
+        }
+
+        if (colPurchaseItemPrice != null) {
+            colPurchaseItemPrice.setCellValueFactory(new PropertyValueFactory<>("purchasePrice"));
+        }
+        if (colPurchaseItemSellPrice != null) {
+            colPurchaseItemSellPrice.setCellValueFactory(new PropertyValueFactory<>("sellingPrice"));
+        }
+
+        if (purchaseCartTable != null) {
+            colPCartProduct.setCellValueFactory(new PropertyValueFactory<>("productName"));
+            if (colPCartSize != null) {
+                colPCartSize.setCellValueFactory(new PropertyValueFactory<>("sizeMl"));
+            }
+            colPCartQty.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+            colPCartBuyPrice.setCellValueFactory(new PropertyValueFactory<>("purchasePrice"));
+            colPCartSellPrice.setCellValueFactory(new PropertyValueFactory<>("sellingPrice"));
+            colPCartTotal.setCellValueFactory(new PropertyValueFactory<>("lineTotal"));
+        }
+    }
+
     private void setupCartTable() {
         if (cartTable == null) {
             return;
         }
 
         colCartProduct.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        if (colCartSize != null) {
+            colCartSize.setCellValueFactory(new PropertyValueFactory<>("sizeMl"));
+        }
         colCartQty.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         colCartPrice.setCellValueFactory(new PropertyValueFactory<>("lineTotal"));
         cartTable.setItems(cartData);
@@ -301,6 +433,9 @@ public class MainController {
         colHistorySaleId.setCellValueFactory(new PropertyValueFactory<>("saleId"));
         colHistoryDate.setCellValueFactory(new PropertyValueFactory<>("saleDate"));
         colHistoryProduct.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        if (colHistorySize != null) {
+            colHistorySize.setCellValueFactory(new PropertyValueFactory<>("sizeMl"));
+        }
         colHistoryQty.setCellValueFactory(new PropertyValueFactory<>("quantitySold"));
         colHistoryPrice.setCellValueFactory(new PropertyValueFactory<>("salePriceAtTime"));
         colHistoryTotal.setCellValueFactory(new PropertyValueFactory<>("totalPrice"));
@@ -308,6 +443,8 @@ public class MainController {
     }
 
     private void setupDateButtons() {
+        configureQuickDateButton(btnDateToday, 0);
+        configureQuickDateButton(btnDateYesterday, 1);
         configureQuickDateButton(btnDate3, 2);
         configureQuickDateButton(btnDate4, 3);
         configureQuickDateButton(btnDate5, 4);
@@ -336,6 +473,26 @@ public class MainController {
             comboProductName.setItems(FXCollections.observableArrayList(productNames));
             TextFields.bindAutoCompletion(comboProductName.getEditor(), productNames);
             comboProductName.setOnAction(event -> updateSelectedProductInfo());
+        }
+        
+        if (posSearchField != null) {
+            AutoCompletionBinding<String> binding = TextFields.bindAutoCompletion(posSearchField, productNames);
+            binding.setOnAutoCompleted(event -> {
+                String result = event.getCompletion();
+                posSearchField.setText(result);
+                selectProductInTable(result);
+            });
+        }
+    }
+
+    private void selectProductInTable(String productName) {
+        if (purchaseItemsTable == null) return;
+        for (Product p : posData) {
+            if (safeString(p.getProductName()).equalsIgnoreCase(productName)) {
+                purchaseItemsTable.getSelectionModel().select(p);
+                purchaseItemsTable.scrollTo(p);
+                break;
+            }
         }
     }
 
@@ -452,9 +609,29 @@ public class MainController {
                     .filter(product -> safeInt(product.getCurrentStock()) <= safeInt(product.getLowStockThreshold()))
                     .count();
             lblLowStockCount.setText(String.valueOf(lowStockCount));
+            
+            if (cardLowStock != null) {
+                if (lowStockCount > 0) {
+                    cardLowStock.setStyle("-fx-background-color: #ef4444; -fx-background-radius: 12; -fx-padding: 18 20; -fx-effect: dropshadow(three-pass-box, rgba(239,68,68,0.3), 12, 0, 0, 5); -fx-cursor: hand;");
+                    lblLowStockCount.setStyle("-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: white;");
+                    if (lblLowStockTitle != null) {
+                        lblLowStockTitle.setStyle("-fx-text-fill: #fee2e2; -fx-font-size: 12;");
+                    }
+                } else {
+                    cardLowStock.setStyle(INACTIVE_CARD);
+                    lblLowStockCount.setStyle("-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
+                    if (lblLowStockTitle != null) {
+                        lblLowStockTitle.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 12;");
+                    }
+                }
+            }
         }
         if (lblRecentSalesEntries != null) {
-            lblRecentSalesEntries.setText(String.valueOf(inventoryService.getSalesCountOn(selectedDate)));
+            BigDecimal totalProfit = dashboardMasterData.stream()
+                    .map(Product::getProfit)
+                    .filter(p -> p != null)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            lblRecentSalesEntries.setText(formatCurrency(totalProfit));
         }
     }
 
@@ -463,13 +640,34 @@ public class MainController {
             lblCurrentDate.setText("Viewing inventory for " + selectedDate.format(HEADER_DATE_FORMAT));
         }
 
-        assignDateButton(btnDate3, selectedDate.minusDays(2));
-        assignDateButton(btnDate4, selectedDate.minusDays(3));
-        assignDateButton(btnDate5, selectedDate.minusDays(4));
-        assignDateButton(btnDate6, selectedDate.minusDays(5));
+        LocalDate today = LocalDate.now();
+        assignDateButton(btnDateToday, today);
+        assignDateButton(btnDateYesterday, today.minusDays(1));
+        assignDateButton(btnDate3, today.minusDays(2));
+        assignDateButton(btnDate4, today.minusDays(3));
+        assignDateButton(btnDate5, today.minusDays(4));
+        assignDateButton(btnDate6, today.minusDays(5));
+
+        // Highlight the selected date
+        styleDateChip(btnDateToday, today.equals(selectedDate));
+        styleDateChip(btnDateYesterday, today.minusDays(1).equals(selectedDate));
+        styleDateChip(btnDate3, today.minusDays(2).equals(selectedDate));
+        styleDateChip(btnDate4, today.minusDays(3).equals(selectedDate));
+        styleDateChip(btnDate5, today.minusDays(4).equals(selectedDate));
+        styleDateChip(btnDate6, today.minusDays(5).equals(selectedDate));
 
         if (btnNextDate != null) {
-            btnNextDate.setDisable(!selectedDate.isBefore(LocalDate.now()));
+            btnNextDate.setDisable(!selectedDate.isBefore(today));
+        }
+    }
+
+    private void styleDateChip(Button button, boolean active) {
+        if (button == null) return;
+        
+        if (active) {
+            button.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 5 14; -fx-font-weight: bold; -fx-cursor: hand;");
+        } else {
+            button.setStyle("-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-background-radius: 6; -fx-padding: 5 14; -fx-cursor: hand;");
         }
     }
 
@@ -478,7 +676,9 @@ public class MainController {
             return;
         }
         button.setUserData(date);
-        button.setText(date.format(CHIP_DATE_FORMAT));
+        if (button != btnDateToday && button != btnDateYesterday) {
+            button.setText(date.format(CHIP_DATE_FORMAT));
+        }
     }
 
     private void setSelectedDate(LocalDate date) {
@@ -565,7 +765,11 @@ public class MainController {
     private void handleOpenAnalytics() {
         loadView("/view/AnalyticsView.fxml");
         updateNavStyles(btnNavAnalytics);
-        loadAnalyticsData();
+        if (currentReportType == ReportType.PRODUCT_ANALYSIS) {
+            showProductAnalysisMode();
+        } else {
+            loadAnalyticsData();
+        }
     }
 
     @FXML
@@ -582,9 +786,27 @@ public class MainController {
     }
 
     @FXML
-    private void handleProductAnalysis() {
-        loadView("/view/ProductAnalysis.fxml");
-        updateNavStyles(btnNavAnalytics);
+    public void handleProductAnalysis() {
+        currentReportType = ReportType.PRODUCT_ANALYSIS;
+        showProductAnalysisMode();
+    }
+
+    @FXML
+    private void handleDailyReport() {
+        currentReportType = ReportType.DAILY;
+        loadAnalyticsData();
+    }
+
+    @FXML
+    private void handleMonthlyReport() {
+        currentReportType = ReportType.MONTHLY;
+        loadAnalyticsData();
+    }
+
+    @FXML
+    private void handleAnnualReport() {
+        currentReportType = ReportType.ANNUAL;
+        loadAnalyticsData();
     }
 
     @FXML
@@ -620,30 +842,14 @@ public class MainController {
 
     @FXML
     private void handleExportCSV() {
-        String filename = "Inventory_Export_" + selectedDate + ".csv";
-        String path = System.getProperty("user.home") + "\\Desktop\\" + filename;
+        File targetDirectory = new File(System.getProperty("user.home"), "Desktop");
 
-        try (FileWriter writer = new FileWriter(new File(path))) {
-            writer.write("Date,Product ID,Product Name,Category,Opening Stock,Purchases,Sales,Closing Stock,Purchase Price,Selling Price\n");
-            for (Product product : dashboardMasterData) {
-                writer.write(String.join(",",
-                        selectedDate.toString(),
-                        safeString(product.getProductId()),
-                        csvValue(product.getProductName()),
-                        csvValue(product.getCategory()),
-                        safeString(product.getOpeningStock()),
-                        safeString(product.getTotalPurchases()),
-                        safeString(product.getTotalSales()),
-                        safeString(product.getCurrentStock()),
-                        safeString(product.getPurchasePrice()),
-                        safeString(product.getSellingPrice())));
-                writer.write("\n");
-            }
-
+        try {
+            Path csvFile = securityVaultService.exportInventoryCsv(selectedDate, targetDirectory.toPath(), dashboardMasterData);
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Export Complete");
             alert.setHeaderText(null);
-            alert.setContentText("Saved " + filename + " to your Desktop.");
+            alert.setContentText("Saved " + csvFile.getFileName() + " to your Desktop as read-only.");
             alert.showAndWait();
         } catch (IOException exception) {
             showErrorAlert("Export Error", exception.getMessage());
@@ -677,16 +883,56 @@ public class MainController {
         }
     }
 
-    private void loadView(String path) {
+    /**
+     * Opens the Batch Details popup for the given product.
+     * Can be called from any row action in the inventory table.
+     *
+     * @param product the product whose batch history should be shown
+     */
+    public void openBatchDetailsPopup(Product product) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BatchDetailsPopup.fxml"));
             loader.setControllerFactory(springContext::getBean);
             Parent root = loader.load();
+
+            BatchDetailsController controller = loader.getController();
+            controller.initData(product);
+
+            Stage stage = new Stage();
+            stage.setTitle("Batch History – " + product.getProductName());
+            stage.initModality(Modality.APPLICATION_MODAL);
+            if (contentArea != null && contentArea.getScene() != null) {
+                stage.initOwner(contentArea.getScene().getWindow());
+            }
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+        } catch (IOException e) {
+            showErrorAlert("Batch Details Error", e.getMessage());
+        }
+    }
+
+    private void loadView(String path) {
+        try {
+            java.net.URL resource = MainController.class.getResource(path);
+            if (resource == null) {
+                showErrorAlert("Navigation Error", "Resource not found: " + path);
+                return;
+            }
+            FXMLLoader loader = new FXMLLoader(resource);
+            Parent root;
+            if ("/view/ProductAnalysis.fxml".equals(path)) {
+                root = loader.load();
+                ProductAnalysisController controller = loader.getController();
+                controller.setReportService(springContext.getBean(com.winestore.inventory_system.service.ReportService.class));
+            } else {
+                loader.setControllerFactory(springContext::getBean);
+                root = loader.load();
+            }
             if (contentArea != null) {
                 contentArea.getChildren().setAll(root);
             }
-        } catch (IOException exception) {
-            showErrorAlert("Navigation Error", exception.getMessage());
+        } catch (Exception exception) {
+            showErrorAlert("Navigation Error", exception.getMessage() != null ? exception.getMessage() : exception.toString());
         }
     }
 
@@ -744,25 +990,97 @@ public class MainController {
     }
 
     @FXML
-    private void handleSavePurchase() {
+    private void handleAddToPurchaseBatch() {
+        Product selected = purchaseItemsTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showErrorAlert("No Selection", "Please select a product from the list first.");
+            return;
+        }
+
+        String qtyText = txtPCartQty.getText();
+        String buyText = txtPCartBuyPrice.getText();
+        String sellText = txtPCartSellPrice.getText();
+
+        if (qtyText.isEmpty() || buyText.isEmpty() || sellText.isEmpty()) {
+            showErrorAlert("Missing Information", "Please enter quantity, buy price, and sell price.");
+            return;
+        }
+
         try {
-            String productName = comboProductName != null && comboProductName.getEditor() != null
-                    ? comboProductName.getEditor().getText()
-                    : null;
-            Product product = inventoryService.findActiveProductByName(productName);
-            if (product == null) {
-                showErrorAlert("Product Not Found", "Select a valid product before saving the purchase.");
-                return;
+            int qty = Integer.parseInt(qtyText);
+            BigDecimal buyPrice = new BigDecimal(buyText);
+            BigDecimal sellPrice = new BigDecimal(sellText);
+
+            if (qty <= 0) throw new NumberFormatException();
+
+            purchaseCartData.add(new PurchaseCartItem(selected, qty, buyPrice, sellPrice));
+            
+            txtPCartQty.clear();
+            txtPCartBuyPrice.clear();
+            txtPCartSellPrice.clear();
+            updatePurchaseBatchTotal();
+            
+            // Refresh the stock preview in the products table
+            if (purchaseItemsTable != null) {
+                purchaseItemsTable.refresh();
             }
 
-            int quantity = requiredInt(txtQuantity, "Quantity");
-            BigDecimal buyPrice = requiredDecimal(txtPurchasePrice, "Purchase price");
-            inventoryService.recordPurchase(product.getProductId(), quantity, buyPrice, selectedDate);
+        } catch (NumberFormatException e) {
+            showErrorAlert("Invalid Input", "Please enter valid numeric values for quantity and prices.");
+        }
+    }
 
+    private void updatePurchaseBatchTotal() {
+        BigDecimal total = purchaseCartData.stream()
+                .map(PurchaseCartItem::getLineTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (lblPurchaseBatchTotal != null) {
+            lblPurchaseBatchTotal.setText("Batch Total: " + formatCurrency(total));
+        }
+    }
+
+    @FXML
+    private void handleConfirmBatchPurchase() {
+        if (purchaseCartData.isEmpty()) {
+            showErrorAlert("Batch Empty", "Add at least one product before saving the purchase batch.");
+            return;
+        }
+
+        try {
+            for (PurchaseCartItem item : purchaseCartData) {
+                inventoryService.recordPurchase(
+                    item.getProduct().getProductId(),
+                    item.getQuantity(),
+                    item.getPurchasePrice(),
+                    item.getSellingPrice(),
+                    selectedDate
+                );
+            }
+
+            showInfoAlert("Success", "Batch purchase recorded successfully.");
+            purchaseCartData.clear();
+            updatePurchaseBatchTotal();
             handleCancelModal();
             refreshTable();
-        } catch (IllegalArgumentException exception) {
-            showErrorAlert("Input Error", exception.getMessage());
+
+        } catch (Exception e) {
+            showErrorAlert("Save Error", "Failed to record batch purchase: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleRemoveFromPurchaseBatch() {
+        PurchaseCartItem selected = purchaseCartTable.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            purchaseCartData.remove(selected);
+        } else {
+            purchaseCartData.clear();
+        }
+        updatePurchaseBatchTotal();
+        
+        // Refresh the stock preview
+        if (purchaseItemsTable != null) {
+            purchaseItemsTable.refresh();
         }
     }
 
@@ -775,6 +1093,8 @@ public class MainController {
             stage = (Stage) comboProductName.getScene().getWindow();
         } else if (txtProfitMarginDisplay != null && txtProfitMarginDisplay.getScene() != null) {
             stage = (Stage) txtProfitMarginDisplay.getScene().getWindow();
+        } else if (purchaseItemsTable != null && purchaseItemsTable.getScene() != null) {
+            stage = (Stage) purchaseItemsTable.getScene().getWindow();
         }
 
         if (stage != null) {
@@ -783,38 +1103,37 @@ public class MainController {
     }
 
     @FXML
-    private void handleDailyReport() {
-        currentReportType = ReportType.DAILY;
-        loadAnalyticsData();
-    }
-
-    @FXML
-    private void handleMonthlyReport() {
-        currentReportType = ReportType.MONTHLY;
-        loadAnalyticsData();
-    }
-
-    @FXML
-    private void handleAnnualReport() {
-        currentReportType = ReportType.ANNUAL;
-        loadAnalyticsData();
-    }
-
-    @FXML
     private void handleAnalyticsDateChange() {
+        if (currentReportType == ReportType.PRODUCT_ANALYSIS) {
+            return;
+        }
         loadAnalyticsData();
     }
 
     private void loadAnalyticsData() {
-        if (analyticsDatePicker == null) {
+        if (dateSelectorContainer == null) {
             return;
         }
 
-        if (analyticsDatePicker.getValue() == null) {
-            analyticsDatePicker.setValue(selectedDate);
+        showAnalyticsSummaryMode();
+
+        updateAnalyticsSelectors();
+        
+        LocalDate anchorDate = LocalDate.now();
+        if (currentReportType == ReportType.DAILY) {
+            if (analyticsDatePicker != null && analyticsDatePicker.getValue() != null) {
+                anchorDate = analyticsDatePicker.getValue();
+            }
+        } else {
+            int year = (comboYear != null && comboYear.getValue() != null) ? comboYear.getValue() : LocalDate.now().getYear();
+            if (currentReportType == ReportType.MONTHLY) {
+                Month month = (comboMonth != null && comboMonth.getValue() != null) ? comboMonth.getValue() : LocalDate.now().getMonth();
+                anchorDate = LocalDate.of(year, month, 1);
+            } else {
+                anchorDate = LocalDate.of(year, 1, 1);
+            }
         }
 
-        LocalDate anchorDate = analyticsDatePicker.getValue();
         LocalDate startDate = anchorDate;
         LocalDate endDate = anchorDate;
 
@@ -856,10 +1175,97 @@ public class MainController {
         setAnalyticsValues(totalSales, sales.size(), totalQuantity, totalProfit);
     }
 
+    private void showAnalyticsSummaryMode() {
+        setNodeVisibility(analyticsDateCard, true);
+        setNodeVisibility(analyticsSummarySection, true);
+        setNodeVisibility(productAnalysisContainer, false);
+        updateAnalyticsButtons();
+    }
+
+    private void showProductAnalysisMode() {
+        if (productAnalysisContainer == null) {
+            return;
+        }
+
+        try {
+            ensureProductAnalysisViewLoaded();
+            setNodeVisibility(analyticsDateCard, false);
+            setNodeVisibility(analyticsSummarySection, false);
+            setNodeVisibility(productAnalysisContainer, true);
+            updateAnalyticsButtons();
+        } catch (IOException exception) {
+            showErrorAlert("Navigation Error", exception.getMessage());
+        }
+    }
+
+    private void ensureProductAnalysisViewLoaded() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ProductAnalysis.fxml"));
+        Parent analysisView = loader.load();
+        ProductAnalysisController controller = loader.getController();
+        controller.setReportService(springContext.getBean(com.winestore.inventory_system.service.ReportService.class));
+        productAnalysisContainer.getChildren().setAll(analysisView);
+    }
+
+    private void setNodeVisibility(javafx.scene.Node node, boolean visible) {
+        if (node == null) {
+            return;
+        }
+        node.setVisible(visible);
+        node.setManaged(visible);
+    }
+
+    private void updateAnalyticsSelectors() {
+        if (dateSelectorContainer == null) return;
+        
+        dateSelectorContainer.getChildren().clear();
+        
+        if (currentReportType == ReportType.DAILY) {
+            if (lblDatePicker != null) lblDatePicker.setText("Select Date");
+            if (analyticsDatePicker == null) {
+                analyticsDatePicker = new DatePicker(selectedDate);
+                analyticsDatePicker.setOnAction(e -> loadAnalyticsData());
+                analyticsDatePicker.setPrefHeight(38);
+                analyticsDatePicker.setStyle("-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 8;");
+            }
+            dateSelectorContainer.getChildren().add(analyticsDatePicker);
+        } else {
+            if (comboYear == null) {
+                comboYear = new ComboBox<>();
+                int currentYear = LocalDate.now().getYear();
+                for (int y = currentYear; y >= currentYear - 5; y--) {
+                    comboYear.getItems().add(y);
+                }
+                comboYear.setValue(currentYear);
+                comboYear.setOnAction(e -> loadAnalyticsData());
+                comboYear.setPrefHeight(38);
+                comboYear.setPrefWidth(120);
+                comboYear.setStyle("-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 8;");
+            }
+            
+            if (currentReportType == ReportType.MONTHLY) {
+                if (lblDatePicker != null) lblDatePicker.setText("Select Month");
+                if (comboMonth == null) {
+                    comboMonth = new ComboBox<>();
+                    comboMonth.getItems().addAll(Month.values());
+                    comboMonth.setValue(LocalDate.now().getMonth());
+                    comboMonth.setOnAction(e -> loadAnalyticsData());
+                    comboMonth.setPrefHeight(38);
+                    comboMonth.setPrefWidth(150);
+                    comboMonth.setStyle("-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 8;");
+                }
+                dateSelectorContainer.getChildren().addAll(comboMonth, comboYear);
+            } else {
+                if (lblDatePicker != null) lblDatePicker.setText("Select Year");
+                dateSelectorContainer.getChildren().add(comboYear);
+            }
+        }
+    }
+
     private void updateAnalyticsButtons() {
         styleAnalyticsButton(btnDailyReport, currentReportType == ReportType.DAILY);
         styleAnalyticsButton(btnMonthlyReport, currentReportType == ReportType.MONTHLY);
         styleAnalyticsButton(btnAnnualReport, currentReportType == ReportType.ANNUAL);
+        styleAnalyticsButton(btnProductAnalysis, currentReportType == ReportType.PRODUCT_ANALYSIS);
     }
 
     private void styleAnalyticsButton(Button button, boolean active) {
@@ -1090,12 +1496,11 @@ public class MainController {
                             .orElse(null);
                     if (product != null) {
                         sale.setProductName(product.getProductName());
-                        BigDecimal purchasePrice = product.getPurchasePrice();
-                        if (purchasePrice != null && sale.getSalePriceAtTime() != null) {
-                            sale.setProfit(sale.getSalePriceAtTime()
-                                    .subtract(purchasePrice)
-                                    .multiply(BigDecimal.valueOf(safeInt(sale.getQuantitySold()))));
-                        }
+                        sale.setSizeMl(product.getSizeMl());
+                        BigDecimal purchasePrice = product.getPurchasePrice() != null ? product.getPurchasePrice() : BigDecimal.ZERO;
+                        BigDecimal salePrice = sale.getSalePriceAtTime() != null ? sale.getSalePriceAtTime() : BigDecimal.ZERO;
+                        BigDecimal qty = BigDecimal.valueOf(sale.getQuantitySold() != null ? sale.getQuantitySold() : 0);
+                        sale.setProfit(salePrice.subtract(purchasePrice).multiply(qty));
                     }
                 })
                 .filter(sale -> query.isBlank()
@@ -1137,7 +1542,74 @@ public class MainController {
         handleHistoryFilter();
     }
 
+    @FXML
+    private void handleOpenSettings() {
+        if (inventoryService.isManagerPasswordConfigured()
+                && !checkManagerPassword("Enter the current manager password to update settings.")) {
+            return;
+        }
+        openSecuritySettings();
+    }
+
+    private void openSecuritySettings() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/SecuritySettings.fxml"));
+            loader.setControllerFactory(springContext::getBean);
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Manager Control Panel");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            if (contentArea != null && contentArea.getScene() != null) {
+                stage.initOwner(contentArea.getScene().getWindow());
+            }
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+        } catch (IOException exception) {
+            showErrorAlert("Settings Error", exception.getMessage());
+        }
+    }
+
+    private boolean checkManagerPassword() {
+        return checkManagerPassword("Enter the manager password to edit this item.");
+    }
+
+    private boolean checkManagerPassword(String prompt) {
+        if (!inventoryService.isManagerPasswordConfigured()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Manager Password Required");
+            alert.setHeaderText(null);
+            alert.setContentText("No manager password is configured yet. Create one in Settings first.");
+            alert.showAndWait();
+            return false;
+        }
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Manager Verification");
+        dialog.setHeaderText(prompt);
+
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Manager password");
+        dialog.getDialogPane().setContent(new VBox(10, new Label("Password"), passwordField));
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        ButtonType result = dialog.showAndWait().orElse(ButtonType.CANCEL);
+        if (result != ButtonType.OK) {
+            return false;
+        }
+
+        if (!inventoryService.validateManagerPassword(passwordField.getText())) {
+            showErrorAlert("Access Denied", "Incorrect manager password.");
+            return false;
+        }
+
+        return true;
+    }
+
     private void handleEditProduct(Product product) {
+        if (!checkManagerPassword()) {
+            return;
+        }
         try {
             editingProduct = inventoryService.findProductById(product.getProductId());
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/EditItemModal.fxml"));
@@ -1298,6 +1770,14 @@ public class MainController {
 
     private void showErrorAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showInfoAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);

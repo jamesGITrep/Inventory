@@ -2,72 +2,134 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefWidth="460.0" spacing="15.0" style="-fx-background-color: white;"
+<VBox prefHeight="720.0" prefWidth="1200.0" spacing="16.0"
       xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.winestore.inventory_system.controller.MainController">
+      fx:controller="com.winestore.inventory_system.controller.MainController"
+      style="-fx-background-color: #f8fafc;">
    <padding>
-      <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
    </padding>
    <children>
       <VBox spacing="4.0">
          <children>
-            <Label style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #0f172a;" text="Record Purchase" />
-            <Label fx:id="lblEntryDate" style="-fx-text-fill: #64748b; -fx-font-size: 12;" text="Entry Date:" />
+            <Label style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #0f172a;" text="Batch Purchase Entry" />
+            <Label fx:id="lblEntryDate" style="-fx-text-fill: #64748b; -fx-font-size: 13;" text="Entry Date:" />
          </children>
       </VBox>
 
-      <Separator />
-
-      <VBox spacing="5.0">
+      <HBox spacing="20.0" VBox.vgrow="ALWAYS">
          <children>
-            <Label style="-fx-font-weight: bold; -fx-text-fill: #334155;" text="Select Product *" />
-            <ComboBox fx:id="comboProductName" editable="true" maxWidth="1.7976931348623157E308"
-                      promptText="Type or select a product..."
-                      style="-fx-padding: 8; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 5;" />
-         </children>
-      </VBox>
+            <!-- Left Side: Available Products -->
+            <VBox spacing="12.0" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 16; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 2);"
+                  HBox.hgrow="ALWAYS">
+               <children>
+                  <Label text="Select Product to Restock" style="-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #1e293b;" />
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <TextField fx:id="posSearchField" onKeyReleased="#handleSearchPos" promptText="Search product name..."
+                                   HBox.hgrow="ALWAYS"
+                                   style="-fx-background-radius: 6; -fx-padding: 10 12; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 6;" />
+                        <Button onAction="#handleSearchPos" text="Search"
+                                style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 9 16; -fx-background-radius: 6; -fx-cursor: hand;" />
+                     </children>
+                  </HBox>
+                  <TableView fx:id="purchaseItemsTable" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="colPurchaseItemName" text="Product Name" prefWidth="220.0" />
+                        <TableColumn fx:id="colPurchaseItemSize" text="Size (ml)" prefWidth="80.0" />
+                        <TableColumn fx:id="colPurchaseItemStock" text="Current Stock" prefWidth="100.0" />
+                        <TableColumn fx:id="colPurchaseItemPurchases" text="Purchases" prefWidth="90.0" />
+                        <TableColumn fx:id="colPurchaseItemPrice" text="Current Buy Price" prefWidth="120.0" />
+                        <TableColumn fx:id="colPurchaseItemSellPrice" text="Current Sell Price" prefWidth="120.0" />
+                     </columns>
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                  </TableView>
+                  
+                  <VBox spacing="10.0" style="-fx-background-color: #f1f5f9; -fx-padding: 15; -fx-background-radius: 8;">
+                     <children>
+                        <HBox spacing="10.0">
+                           <children>
+                              <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label text="Qty to Add" style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #64748b;" />
+                                    <TextField fx:id="txtPCartQty" promptText="Quantity"
+                                               style="-fx-background-radius: 6; -fx-padding: 9 12; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 6;" />
+                                 </children>
+                              </VBox>
+                              <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label text="New Purchase Price" style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #64748b;" />
+                                    <TextField fx:id="txtPCartBuyPrice" promptText="Buy Price"
+                                               style="-fx-background-radius: 6; -fx-padding: 9 12; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 6;" />
+                                 </children>
+                              </VBox>
+                              <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label text="New Selling Price" style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #64748b;" />
+                                    <TextField fx:id="txtPCartSellPrice" promptText="Sell Price"
+                                               style="-fx-background-radius: 6; -fx-padding: 9 12; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 6;" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                           <children>
+                              <Button onAction="#refreshPosTable" text="Refresh List"
+                                      style="-fx-background-color: white; -fx-text-fill: #475569; -fx-padding: 9 16; -fx-background-radius: 6; -fx-cursor: hand; -fx-border-color: #e2e8f0; -fx-border-radius: 6;" />
+                              <Region HBox.hgrow="ALWAYS" />
+                              <Button onAction="#handleAddToPurchaseBatch" text="Add To Batch"
+                                      style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 9 20; -fx-background-radius: 6; -fx-cursor: hand;" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
 
-      <VBox spacing="8.0" style="-fx-background-color: #f0fdf4; -fx-border-color: #bbf7d0; -fx-border-radius: 8; -fx-padding: 14;">
-         <children>
-            <Label fx:id="lblCurrentStock" style="-fx-text-fill: #15803d; -fx-font-weight: bold; -fx-font-size: 13;" text="Current Stock: -" />
-            <Label fx:id="lblLastPrice" style="-fx-text-fill: #15803d; -fx-font-weight: bold; -fx-font-size: 13;" text="Last Purchase Price: -" />
-         </children>
-      </VBox>
-
-      <VBox spacing="5.0">
-         <children>
-            <Label style="-fx-font-weight: bold; -fx-text-fill: #334155;" text="Quantity to Add *" />
-            <TextField fx:id="txtQuantity" promptText="e.g. 24"
-                       style="-fx-padding: 10; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 5;" />
-         </children>
-      </VBox>
-
-      <VBox spacing="5.0">
-         <children>
-            <Label style="-fx-font-weight: bold; -fx-text-fill: #334155;" text="Purchase Price per Unit *" />
-            <TextField fx:id="txtPurchasePrice" promptText="0.00"
-                       style="-fx-padding: 10; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 5;" />
-         </children>
-      </VBox>
-
-      <Region VBox.vgrow="ALWAYS" />
-
-      <HBox spacing="10.0">
-         <children>
-            <Button maxWidth="1.7976931348623157E308" onAction="#handleCancelModal"
-                    style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5; -fx-padding: 10; -fx-font-weight: bold; -fx-cursor: hand;"
-                    text="Cancel" HBox.hgrow="ALWAYS" />
-            <Button maxWidth="1.7976931348623157E308" onAction="#handleSavePurchase"
-                    style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-border-radius: 5; -fx-padding: 10; -fx-font-weight: bold; -fx-cursor: hand;"
-                    text="Record Purchase" HBox.hgrow="ALWAYS" />
+            <!-- Right Side: Purchase Batch -->
+            <VBox spacing="12.0" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 16; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 2);"
+                  HBox.hgrow="ALWAYS">
+               <children>
+                  <Label text="Purchase Batch" style="-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #1e293b;" />
+                  <TableView fx:id="purchaseCartTable" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="colPCartProduct" text="Product Name" prefWidth="200.0" />
+                        <TableColumn fx:id="colPCartSize" text="Size" prefWidth="70.0" />
+                        <TableColumn fx:id="colPCartQty" text="Qty" prefWidth="70.0" />
+                        <TableColumn fx:id="colPCartBuyPrice" text="Buy Price" prefWidth="100.0" />
+                        <TableColumn fx:id="colPCartSellPrice" text="Sell Price" prefWidth="100.0" />
+                        <TableColumn fx:id="colPCartTotal" text="Subtotal" prefWidth="110.0" />
+                     </columns>
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                  </TableView>
+                  <HBox alignment="CENTER_LEFT" style="-fx-padding: 10 0;">
+                     <children>
+                        <Label fx:id="lblPurchaseBatchTotal" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #0f172a;" text="Batch Total: Rs.0.00" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" spacing="12.0">
+                     <children>
+                        <Button onAction="#handleConfirmBatchPurchase" text="Save All Purchases"
+                                style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 24; -fx-background-radius: 6; -fx-cursor: hand;" />
+                        <Button onAction="#handleRemoveFromPurchaseBatch" text="Clear Selected / All"
+                                style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-padding: 12 24; -fx-background-radius: 6; -fx-cursor: hand;" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
          </children>
       </HBox>
    </children>

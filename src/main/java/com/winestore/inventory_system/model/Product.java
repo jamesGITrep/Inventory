@@ -1,6 +1,7 @@
 package com.winestore.inventory_system.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,9 +47,15 @@ public class Product {
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private Integer totalSales = 0;
 
+    @Column(name = "created_date")
+    private LocalDate createdDate = LocalDate.now();
+
     // Standard Getters and Setters
     public Integer getProductId() { return productId; }
     public void setProductId(Integer productId) { this.productId = productId; }
+
+    public LocalDate getCreatedDate() { return createdDate; }
+    public void setCreatedDate(LocalDate createdDate) { this.createdDate = createdDate; }
 
     public String getProductName() { return productName; }
     public void setProductName(String productName) { this.productName = productName; }

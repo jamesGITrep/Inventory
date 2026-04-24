@@ -34,6 +34,7 @@ public class PurchaseHistoryController {
     @FXML private TableColumn<PurchaseHistoryDTO, Integer> colProductId;
     @FXML private TableColumn<PurchaseHistoryDTO, Integer> colQty;
     @FXML private TableColumn<PurchaseHistoryDTO, String> colProductName;
+    @FXML private TableColumn<PurchaseHistoryDTO, Integer> colSize;
     @FXML private TableColumn<PurchaseHistoryDTO, String> colCategory;
     @FXML private TableColumn<PurchaseHistoryDTO, String> colManufacturer;
     @FXML private TableColumn<PurchaseHistoryDTO, BigDecimal> colPrice;
@@ -68,6 +69,7 @@ public class PurchaseHistoryController {
         colPurchaseId.setCellValueFactory(new PropertyValueFactory<>("purchaseId"));
         colProductId.setCellValueFactory(new PropertyValueFactory<>("productId"));
         colProductName.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        colSize.setCellValueFactory(new PropertyValueFactory<>("sizeMl"));
         colCategory.setCellValueFactory(new PropertyValueFactory<>("categoryName"));
         colManufacturer.setCellValueFactory(new PropertyValueFactory<>("manufacturerName"));
         colQty.setCellValueFactory(new PropertyValueFactory<>("quantityAdded"));

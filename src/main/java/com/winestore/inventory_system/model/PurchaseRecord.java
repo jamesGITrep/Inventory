@@ -12,6 +12,11 @@ public class PurchaseRecord {
     private Integer purchaseId;
 
     private Integer productId;
+
+    /** Foreign key linking this record to the batch that was affected/created. */
+    @Column(name = "batch_id")
+    private Integer batchId;
+
     private Integer quantityBought;
     private BigDecimal purchasePrice;
     private LocalDate purchaseDate;
@@ -22,6 +27,9 @@ public class PurchaseRecord {
 
     public Integer getProductId() { return productId; }
     public void setProductId(Integer productId) { this.productId = productId; }
+
+    public Integer getBatchId() { return batchId; }
+    public void setBatchId(Integer batchId) { this.batchId = batchId; }
 
     public Integer getQuantityBought() { return quantityBought; }
     public void setQuantityBought(Integer quantityBought) { this.quantityBought = quantityBought; }

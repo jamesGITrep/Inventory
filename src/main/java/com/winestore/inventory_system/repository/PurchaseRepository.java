@@ -14,7 +14,7 @@ public interface PurchaseRepository extends JpaRepository<PurchaseRecord, Intege
     List<PurchaseRecord> findByPurchaseDate(LocalDate purchaseDate);
 
     @Query("SELECT new com.winestore.inventory_system.dto.PurchaseHistoryDTO(" +
-           "pr.purchaseId, p.productId, p.productName, p.category, p.manufacturer, " +
+           "pr.purchaseId, p.productId, p.productName, p.category, p.manufacturer, p.sizeMl, " +
            "pr.quantityBought, pr.purchasePrice, pr.purchaseDate) " +
            "FROM PurchaseRecord pr JOIN Product p ON pr.productId = p.productId " +
            "WHERE pr.purchaseDate BETWEEN :start AND :end " +

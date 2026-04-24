@@ -4,15 +4,17 @@ public class ProductAnalysisRow {
     private Integer productId;
     private String productName;
     private String category;
+    private Integer sizeMl;
     private Integer totalVolume;
     private Double totalRevenue;
     private Double totalProfit;
     private Double avgMargin;
 
-    public ProductAnalysisRow(Integer productId, String productName, String category, Integer totalVolume, Double totalRevenue, Double totalProfit) {
+    public ProductAnalysisRow(Integer productId, String productName, String category, Integer sizeMl, Integer totalVolume, Double totalRevenue, Double totalProfit) {
         this.productId = productId;
         this.productName = productName;
         this.category = category;
+        this.sizeMl = sizeMl;
         this.totalVolume = totalVolume;
         this.totalRevenue = totalRevenue;
         this.totalProfit = totalProfit;
@@ -28,6 +30,9 @@ public class ProductAnalysisRow {
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+
+    public Integer getSizeMl() { return sizeMl; }
+    public void setSizeMl(Integer sizeMl) { this.sizeMl = sizeMl; }
 
     public Integer getTotalVolume() { return totalVolume; }
     public void setTotalVolume(Integer totalVolume) { this.totalVolume = totalVolume; }

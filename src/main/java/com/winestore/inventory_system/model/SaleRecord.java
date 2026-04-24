@@ -27,6 +27,8 @@ public class SaleRecord {
     private String productName;
     @Transient
     private BigDecimal profit;
+    @Transient
+    private Integer sizeMl;
 
     // Standard Getters and Setters
     public Integer getSaleId() { return saleId; }
@@ -49,6 +51,9 @@ public class SaleRecord {
     
     public BigDecimal getProfit() { return profit; }
     public void setProfit(BigDecimal profit) { this.profit = profit; }
+
+    public Integer getSizeMl() { return sizeMl; }
+    public void setSizeMl(Integer sizeMl) { this.sizeMl = sizeMl; }
 
     // Computed Fields for TableView
     public BigDecimal getTotalPrice() {

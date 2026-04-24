@@ -9,19 +9,21 @@ public class PurchaseHistoryDTO {
     private String productName;
     private String categoryName;
     private String manufacturerName;
+    private Integer sizeMl;
     private Integer quantityAdded;
     private BigDecimal purchasePrice;
     private BigDecimal totalCost;
     private LocalDate purchaseDate;
 
     public PurchaseHistoryDTO(Integer purchaseId, Integer productId, String productName, String categoryName, 
-                              String manufacturerName, Integer quantityAdded, BigDecimal purchasePrice, 
+                              String manufacturerName, Integer sizeMl, Integer quantityAdded, BigDecimal purchasePrice, 
                               LocalDate purchaseDate) {
         this.purchaseId = purchaseId;
         this.productId = productId;
         this.productName = productName;
         this.categoryName = categoryName;
         this.manufacturerName = manufacturerName;
+        this.sizeMl = sizeMl;
         this.quantityAdded = quantityAdded;
         this.purchasePrice = purchasePrice;
         this.purchaseDate = purchaseDate;
@@ -43,6 +45,9 @@ public class PurchaseHistoryDTO {
 
     public String getManufacturerName() { return manufacturerName; }
     public void setManufacturerName(String manufacturerName) { this.manufacturerName = manufacturerName; }
+
+    public Integer getSizeMl() { return sizeMl; }
+    public void setSizeMl(Integer sizeMl) { this.sizeMl = sizeMl; }
 
     public Integer getQuantityAdded() { return quantityAdded; }
     public void setQuantityAdded(Integer quantityAdded) { this.quantityAdded = quantityAdded; }

@@ -94,6 +94,7 @@
                   <TableColumn fx:id="colPurchaseId" prefWidth="90.0" text="Purchase ID" />
                   <TableColumn fx:id="colProductId" prefWidth="90.0" text="Product ID" />
                   <TableColumn fx:id="colProductName" prefWidth="220.0" text="Product Name" />
+                  <TableColumn fx:id="colSize" prefWidth="90.0" text="Size (ml)" />
                   <TableColumn fx:id="colCategory" prefWidth="120.0" text="Category" />
                   <TableColumn fx:id="colManufacturer" prefWidth="150.0" text="Manufacturer" />
                   <TableColumn fx:id="colQty" prefWidth="110.0" text="Quantity Added" />

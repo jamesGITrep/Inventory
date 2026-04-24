@@ -13,16 +13,17 @@
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.winestore.inventory_system.controller.ProductAnalysisController"
-      style="-fx-padding: 20; -fx-spacing: 20; -fx-background-color: #f8fafc;">
+      style="-fx-padding: 20; -fx-spacing: 20; -fx-background-color: #f8fafc;" prefHeight="800.0" prefWidth="1200.0">
    <children>
       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Product-wise Performance"
-            style="-fx-font-size: 24; -fx-font-weight: bold;" />
+            style="-fx-font-size: 24; -fx-font-weight: bold; -fx-fill: #1e293b;" />
 
-      <HBox spacing="20">
+      <HBox spacing="20" VBox.vgrow="ALWAYS">
          <children>
-            <TitledPane text="Top Selling Products (Volume)" expanded="true">
-               <content>
-                  <BarChart fx:id="topSellingChart">
+            <VBox spacing="10" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 10;">
+               <children>
+                  <Text text="Top Selling Products (Volume)" style="-fx-font-weight: bold; -fx-fill: #64748b;" />
+                  <BarChart fx:id="topSellingChart" animated="false">
                      <xAxis>
                         <CategoryAxis side="BOTTOM" />
                      </xAxis>
@@ -30,30 +31,32 @@
                         <NumberAxis side="LEFT" />
                      </yAxis>
                   </BarChart>
-               </content>
-            </TitledPane>
+               </children>
+            </VBox>
 
-            <TitledPane text="Profit Contribution by Category" expanded="true">
-               <content>
-                  <PieChart fx:id="marginPieChart" />
-               </content>
-            </TitledPane>
+            <VBox spacing="10" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 10;">
+               <children>
+                  <Text text="Profit Contribution by Category" style="-fx-font-weight: bold; -fx-fill: #64748b;" />
+                  <PieChart fx:id="marginPieChart" animated="false" />
+               </children>
+            </VBox>
          </children>
       </HBox>
 
-      <VBox spacing="10">
+      <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 10;">
          <children>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Detailed Sales Metrics"
-                  style="-fx-font-size: 18; -fx-font-weight: bold;" />
-            <TableView fx:id="detailedSalesTable" prefHeight="400.0" prefWidth="1200.0">
+                  style="-fx-font-size: 18; -fx-font-weight: bold; -fx-fill: #1e293b;" />
+            <TableView fx:id="detailedSalesTable" prefHeight="400.0" VBox.vgrow="ALWAYS">
                <columns>
-                  <TableColumn fx:id="col_pId" prefWidth="75.0" text="Product ID" />
+                  <TableColumn fx:id="col_pId" prefWidth="75.0" text="ID" />
                   <TableColumn fx:id="col_pName" prefWidth="250.0" text="Product Name" />
+                  <TableColumn fx:id="col_pSize" prefWidth="100.0" text="Size (ml)" />
                   <TableColumn fx:id="col_pCategory" prefWidth="150.0" text="Category" />
-                  <TableColumn fx:id="col_volume" prefWidth="150.0" text="Total Volume Sold" />
-                  <TableColumn fx:id="col_revenue" prefWidth="175.0" text="Total Revenue" />
-                  <TableColumn fx:id="col_profit" prefWidth="175.0" text="Total Profit" />
-                  <TableColumn fx:id="col_margin" prefWidth="150.0" text="Avg. Margin (%)" />
+                  <TableColumn fx:id="col_volume" prefWidth="120.0" text="Volume" />
+                  <TableColumn fx:id="col_revenue" prefWidth="150.0" text="Revenue" />
+                  <TableColumn fx:id="col_profit" prefWidth="150.0" text="Profit" />
+                  <TableColumn fx:id="col_margin" prefWidth="120.0" text="Margin %" />
                </columns>
             </TableView>
          </children>
