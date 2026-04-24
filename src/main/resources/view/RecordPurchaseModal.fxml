@@ -1,66 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<VBox prefWidth="450.0" spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.winestore.inventory_system.controller.MainController">
+<VBox prefWidth="460.0" spacing="15.0" style="-fx-background-color: white;"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.winestore.inventory_system.controller.MainController">
+   <padding>
+      <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+   </padding>
    <children>
-      <VBox spacing="5.0">
+      <VBox spacing="4.0">
          <children>
             <Label style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #0f172a;" text="Record Purchase" />
-            <Label style="-fx-text-fill: #64748b;" text="Add new stock from supplier" />
+            <Label fx:id="lblEntryDate" style="-fx-text-fill: #64748b; -fx-font-size: 12;" text="Entry Date:" />
          </children>
       </VBox>
 
       <Separator />
 
-      <VBox spacing="15.0">
+      <VBox spacing="5.0">
          <children>
-            <VBox spacing="5.0">
-               <children>
-                  <Label style="-fx-font-weight: bold; -fx-text-fill: #334155;" text="Select Product *" />
-                  <ComboBox fx:id="comboProductName" editable="true" maxWidth="1.7976931348623157E308" promptText="Type or select product..." style="-fx-padding: 8; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5;" />
-               </children>
-            </VBox>
+            <Label style="-fx-font-weight: bold; -fx-text-fill: #334155;" text="Select Product *" />
+            <ComboBox fx:id="comboProductName" editable="true" maxWidth="1.7976931348623157E308"
+                      promptText="Type or select a product..."
+                      style="-fx-padding: 8; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 5;" />
+         </children>
+      </VBox>
 
-            <VBox spacing="8.0" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-padding: 15;">
-               <children>
-                  <Label fx:id="lblCurrentStock" style="-fx-text-fill: #475569; -fx-font-weight: bold;" text="Current Stock: --" />
-                  <Label fx:id="lblLastPrice" style="-fx-text-fill: #475569; -fx-font-weight: bold;" text="Last Purchase Price: ₹0.00" />
-               </children>
-            </VBox>
+      <VBox spacing="8.0" style="-fx-background-color: #f0fdf4; -fx-border-color: #bbf7d0; -fx-border-radius: 8; -fx-padding: 14;">
+         <children>
+            <Label fx:id="lblCurrentStock" style="-fx-text-fill: #15803d; -fx-font-weight: bold; -fx-font-size: 13;" text="Current Stock: -" />
+            <Label fx:id="lblLastPrice" style="-fx-text-fill: #15803d; -fx-font-weight: bold; -fx-font-size: 13;" text="Last Purchase Price: -" />
+         </children>
+      </VBox>
 
-            <VBox spacing="5.0">
-               <children>
-                  <Label style="-fx-font-weight: bold; -fx-text-fill: #334155;" text="Quantity to Purchase *" />
-                  <TextField fx:id="txtQuantity" style="-fx-padding: 10; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5;" text="0" />
-               </children>
-            </VBox>
+      <VBox spacing="5.0">
+         <children>
+            <Label style="-fx-font-weight: bold; -fx-text-fill: #334155;" text="Quantity to Add *" />
+            <TextField fx:id="txtQuantity" promptText="e.g. 24"
+                       style="-fx-padding: 10; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 5;" />
+         </children>
+      </VBox>
 
-            <VBox spacing="5.0">
-               <children>
-                  <Label style="-fx-font-weight: bold; -fx-text-fill: #334155;" text="Purchase Price per Unit (₹) *" />
-                  <TextField fx:id="txtPurchasePrice" style="-fx-padding: 10; -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5;" text="0" />
-               </children>
-            </VBox>
+      <VBox spacing="5.0">
+         <children>
+            <Label style="-fx-font-weight: bold; -fx-text-fill: #334155;" text="Purchase Price per Unit *" />
+            <TextField fx:id="txtPurchasePrice" promptText="0.00"
+                       style="-fx-padding: 10; -fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 5;" />
          </children>
       </VBox>
 
       <Region VBox.vgrow="ALWAYS" />
 
-      <HBox spacing="15.0">
+      <HBox spacing="10.0">
          <children>
-            <Button fx:id="btnCancel" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleCancelModal" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5; -fx-padding: 10; -fx-font-weight: bold;" text="Cancel" HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnSave" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleSavePurchase" style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-border-radius: 5; -fx-padding: 10; -fx-font-weight: bold;" text="Record Purchase" HBox.hgrow="ALWAYS" />
+            <Button maxWidth="1.7976931348623157E308" onAction="#handleCancelModal"
+                    style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 5; -fx-padding: 10; -fx-font-weight: bold; -fx-cursor: hand;"
+                    text="Cancel" HBox.hgrow="ALWAYS" />
+            <Button maxWidth="1.7976931348623157E308" onAction="#handleSavePurchase"
+                    style="-fx-background-color: #16a34a; -fx-text-fill: white; -fx-border-radius: 5; -fx-padding: 10; -fx-font-weight: bold; -fx-cursor: hand;"
+                    text="Record Purchase" HBox.hgrow="ALWAYS" />
          </children>
-         <VBox.margin>
-            <Insets top="10.0" />
-         </VBox.margin>
       </HBox>
    </children>
-   <padding>
-      <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
-   </padding>
 </VBox>

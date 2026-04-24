@@ -23,8 +23,8 @@ public class Product {
     @Column(nullable = false)
     private String productName;
 
-    private Integer manufacturerId; 
-    private Integer categoryId;
+    private String manufacturer; 
+    private String category;
     private Integer sizeMl; 
     
     private Integer currentStock;
@@ -37,11 +37,13 @@ public class Product {
     private Boolean isActive = true;
 
     // --- James: Added fields for Excise Friendly Dashboard compatibility ---
-    @Transient // Transient means these aren't in the DB yet, but JavaFX can read them
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private Integer openingStock = 0;
-    @Transient
+    
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private Integer totalPurchases = 0;
-    @Transient
+    
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private Integer totalSales = 0;
 
     // Standard Getters and Setters
@@ -51,8 +53,11 @@ public class Product {
     public String getProductName() { return productName; }
     public void setProductName(String productName) { this.productName = productName; }
 
-    public Integer getCategoryId() { return categoryId; }
-    public void setCategoryId(Integer categoryId) { this.categoryId = categoryId; }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+
+    public String getManufacturer() { return manufacturer; }
+    public void setManufacturer(String manufacturer) { this.manufacturer = manufacturer; }
 
     public Integer getCurrentStock() { return currentStock; }
     public void setCurrentStock(Integer currentStock) { this.currentStock = currentStock; }
@@ -86,5 +91,14 @@ public class Product {
     public String getStockStatus() {
         if (currentStock == null || lowStockThreshold == null) return "OK";
         return (currentStock <= lowStockThreshold) ? "LOW STOCK" : "OK";
+    }
+
+    // Computed profit = (sellingPrice - purchasePrice) x totalSales
+    @Transient
+    public BigDecimal getProfit() {
+        if (purchasePrice == null || sellingPrice == null) return null;
+        if (totalSales == null || totalSales == 0) return null;
+        return sellingPrice.subtract(purchasePrice)
+                           .multiply(BigDecimal.valueOf(totalSales));
     }
 }
