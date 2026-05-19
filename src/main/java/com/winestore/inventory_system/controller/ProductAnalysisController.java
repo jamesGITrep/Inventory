@@ -15,6 +15,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import java.time.LocalDate;
 
 public class ProductAnalysisController {
 
@@ -33,6 +34,8 @@ public class ProductAnalysisController {
 
     private ReportService reportService;
     private boolean initialized;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     @FXML
     public void initialize() {
@@ -45,6 +48,14 @@ public class ProductAnalysisController {
 
     public void setReportService(ReportService reportService) {
         this.reportService = reportService;
+        if (initialized) {
+            loadAnalysisData();
+        }
+    }
+
+    public void setDateRange(LocalDate start, LocalDate end) {
+        this.startDate = start;
+        this.endDate = end;
         if (initialized) {
             loadAnalysisData();
         }
@@ -64,7 +75,7 @@ public class ProductAnalysisController {
     private void loadAnalysisData() {
         if (reportService == null) return;
         
-        List<ProductAnalysisRow> data = reportService.getProductWiseAnalysis();
+        List<ProductAnalysisRow> data = reportService.getProductWiseAnalysis(startDate, endDate);
         if (detailedSalesTable != null) {
             detailedSalesTable.setItems(FXCollections.observableArrayList(data));
         }
@@ -83,7 +94,7 @@ public class ProductAnalysisController {
 
         if (marginPieChart != null) {
             ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
-            Map<String, Double> categoryProfits = reportService.getCategoryProfitMap();
+            Map<String, Double> categoryProfits = reportService.getCategoryProfitMap(startDate, endDate);
             categoryProfits.forEach((category, profit) -> pieData.add(new PieChart.Data(category, profit)));
             marginPieChart.setData(pieData);
         }
