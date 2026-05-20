@@ -239,6 +239,8 @@ public class MainController {
         DAILY, MONTHLY, ANNUAL, PRODUCT_ANALYSIS
     }
 
+    private ProductAnalysisController activeProductAnalysisController;
+
     @FXML
     public void initialize() {
         setupInventoryTable();
@@ -1115,7 +1117,9 @@ public class MainController {
             return;
         }
 
-        showAnalyticsSummaryMode();
+        if (currentReportType != ReportType.PRODUCT_ANALYSIS) {
+            showAnalyticsSummaryMode();
+        }
 
         updateAnalyticsSelectors();
         
@@ -1140,13 +1144,21 @@ public class MainController {
         if (currentReportType == ReportType.MONTHLY) {
             startDate = anchorDate.withDayOfMonth(1);
             endDate = anchorDate.withDayOfMonth(anchorDate.lengthOfMonth());
-        } else if (currentReportType == ReportType.ANNUAL) {
+        } else if (currentReportType == ReportType.ANNUAL || currentReportType == ReportType.PRODUCT_ANALYSIS) {
             startDate = anchorDate.withDayOfYear(1);
             endDate = anchorDate.withDayOfYear(anchorDate.lengthOfYear());
         }
 
+        if (activeProductAnalysisController != null) {
+            activeProductAnalysisController.setDateRange(startDate, endDate);
+        }
+
         List<SaleRecord> sales = inventoryService.getSalesBetween(startDate, endDate);
         updateAnalyticsButtons();
+
+        if (currentReportType == ReportType.PRODUCT_ANALYSIS) {
+            return;
+        }
 
         if (analyticsDataState != null) {
             analyticsDataState.setVisible(true);
@@ -1189,21 +1201,25 @@ public class MainController {
 
         try {
             ensureProductAnalysisViewLoaded();
-            setNodeVisibility(analyticsDateCard, false);
+            setNodeVisibility(analyticsDateCard, true);
             setNodeVisibility(analyticsSummarySection, false);
             setNodeVisibility(productAnalysisContainer, true);
             updateAnalyticsButtons();
+            updateAnalyticsSelectors();
+            loadAnalyticsData();
         } catch (IOException exception) {
             showErrorAlert("Navigation Error", exception.getMessage());
         }
     }
 
     private void ensureProductAnalysisViewLoaded() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ProductAnalysis.fxml"));
-        Parent analysisView = loader.load();
-        ProductAnalysisController controller = loader.getController();
-        controller.setReportService(springContext.getBean(com.winestore.inventory_system.service.ReportService.class));
-        productAnalysisContainer.getChildren().setAll(analysisView);
+        if (productAnalysisContainer.getChildren().isEmpty()) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ProductAnalysis.fxml"));
+            Parent analysisView = loader.load();
+            activeProductAnalysisController = loader.getController();
+            activeProductAnalysisController.setReportService(springContext.getBean(com.winestore.inventory_system.service.ReportService.class));
+            productAnalysisContainer.getChildren().setAll(analysisView);
+        }
     }
 
     private void setNodeVisibility(javafx.scene.Node node, boolean visible) {

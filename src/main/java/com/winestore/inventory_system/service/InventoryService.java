@@ -269,7 +269,7 @@ public class InventoryService {
                                  BigDecimal buyPrice,
                                  BigDecimal sellingPrice,
                                  int quantity) {
-        return productBatchRepository.findLatestBatchByProductId(productId)
+        return productBatchRepository.findFirstByProductIdOrderByBatchIdDesc(productId)
                 .map(latestBatch -> {
                     boolean sameBuyPrice    = pricesMatch(latestBatch.getPurchasePrice(), buyPrice);
                     boolean sameSellPrice   = pricesMatch(latestBatch.getSellingPrice(),  sellingPrice);
@@ -350,7 +350,7 @@ public class InventoryService {
         while (remaining > 0) {
             final int remainingSnapshot = remaining;
             ProductBatch oldest = productBatchRepository
-                    .findOldestActiveBatchByProductId(productId)
+                    .findFirstByProductIdAndCurrentStockInBatchGreaterThanOrderByBatchCreatedAtAsc(productId, 0)
                     .orElseThrow(() -> new RuntimeException(
                             "Insufficient batch stock for product " + productId +
                             ". Could not fulfil " + remainingSnapshot + " more unit(s)."));

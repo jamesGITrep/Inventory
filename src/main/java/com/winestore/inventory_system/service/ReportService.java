@@ -30,8 +30,17 @@ public class ReportService {
     @Autowired
     private PurchaseRepository purchaseRepository;
 
-    public List<ProductAnalysisRow> getProductWiseAnalysis() {
-        List<SaleRecord> allSales = saleRepository.findAll();
+    public List<ProductAnalysisRow> getProductWiseAnalysis(LocalDate start, LocalDate end) {
+        List<SaleRecord> allSales;
+        if (start != null && end != null) {
+            if (start.equals(end)) {
+                allSales = saleRepository.findBySaleDate(start);
+            } else {
+                allSales = saleRepository.findBySaleDateBetween(start, end);
+            }
+        } else {
+            allSales = saleRepository.findAll();
+        }
         Map<Integer, List<SaleRecord>> salesByProduct = allSales.stream()
                 .collect(Collectors.groupingBy(SaleRecord::getProductId));
 
@@ -85,8 +94,8 @@ public class ReportService {
                 .collect(Collectors.toList());
     }
 
-    public Map<String, Double> getCategoryProfitMap() {
-        List<ProductAnalysisRow> data = getProductWiseAnalysis();
+    public Map<String, Double> getCategoryProfitMap(LocalDate start, LocalDate end) {
+        List<ProductAnalysisRow> data = getProductWiseAnalysis(start, end);
         return data.stream()
                 .collect(Collectors.groupingBy(
                         row -> {
